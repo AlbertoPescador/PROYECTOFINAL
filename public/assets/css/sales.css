@@ -1,0 +1,138 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.titulo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    font-weight: bold;
+}
+
+.section-title {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 2.5em;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #b8c6db, #f5f7fa);
+    color: rgb(255, 33, 33);
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.category-section {
+    margin-bottom: 2rem;
+}
+
+.category-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: rgb(55, 0, 255);
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.product-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    text-align: left;
+}
+
+.product-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-grow: 1;
+    min-width: 200px;
+    max-width: calc((100% - 4rem) / 3);
+    margin-bottom: 20px;
+}
+
+.product-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.card-body {
+    padding: 15px;
+}
+
+.product-info {
+    margin-bottom: 15px;
+}
+
+.product-name {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #fff;
+    background-color: #8B0000;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    width: 100%;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.product-price,
+.product-sale-price,
+.product-final-price {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.text-strike {
+    text-decoration: line-through;
+    color: #999;
+}
+
+.highlight-price {
+    font-size: 1.2em;
+    color: black;
+    font-weight: bold;
+}
+
+.highlight-sale-price {
+    color: red; /* Cambio de color a rojo */
+    font-weight: bold;
+}
+
+.discount-text {
+    color: red; /* Cambio de color a rojo */
+    font-weight: bold;
+}
+
+.price-discount-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.buy-button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+
+.product-stock {
+    color: #28a745;
+    font-weight: bold;
+    text-align: right;
+}
+
+.stock{
+    margin-top: 15px;
+}

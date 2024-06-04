@@ -1,0 +1,110 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    font-size: 0.7em; /* Reduce el tamaño de la fuente */
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.thumbnail {
+    width: 100px;
+    height: auto;
+}
+
+.align-middle {
+    vertical-align: middle;
+}
+
+.separator-row td {
+    border: none;
+    padding: 0;
+    height: 1px;
+    background-color: #ddd;
+}
+
+.cantidad-total {
+    white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+}
+
+@media (max-width: 768px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    tr {
+        margin: 0 0 1rem 0;
+    }
+
+    tr.separator-row {
+        margin: 0; /* No aplicar margen a la fila separadora */
+    }
+
+    td {
+        border: none;
+        position: relative;
+        padding-left: 50%;
+        text-align: right;
+        white-space: normal;
+    }
+
+    td:before {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        content: attr(data-label);
+    }
+
+    .quantity-input {
+        width: 100%;
+        max-width: 80px;
+    }
+
+    .update-form, .remove-form {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .btn {
+        width: auto;
+        flex-grow: 1;
+        margin-top: 5px;
+        text-align: center;
+    }
+}

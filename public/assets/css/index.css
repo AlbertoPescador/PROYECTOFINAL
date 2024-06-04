@@ -1,0 +1,27 @@
+/* Estilos para el contenido adicional */
+.additional-content {
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%);
+    width: 30%;
+    z-index: 1;
+}
+
+/* Estilos para el div de redes sociales */
+.card {
+    border-radius: 1rem;
+}
+
+/* Imágenes de redes sociales */
+.card img {
+    width: 50px;
+    height: auto;
+}
+
+/* Estilos para los enlaces de autenticación */
+.auth-links {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+}
