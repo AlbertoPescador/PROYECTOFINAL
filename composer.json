@@ -16,6 +16,7 @@
         "symfony/polyfill-mbstring": "^1.29"
     },
     "require-dev": {
+        "darryldecode/cart": "^4.2",
         "fakerphp/faker": "^1.9.1",
         "laravel/breeze": "^1.29",
         "laravel/pint": "^1.0",
@@ -34,7 +35,10 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/",
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
         }
     },
     "scripts": {

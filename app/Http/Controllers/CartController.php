@@ -3,15 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Product;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use App\Models\Invoice;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
-use App\Models\Line;
+use Illuminate\Support\Facades\Log;
+
+use App\Models\Invoice;
+use App\Models\Product;
 use App\Models\User;
+use App\Models\Line;
 use PDF;
 
 class CartController extends Controller
@@ -278,25 +277,26 @@ class CartController extends Controller
  * @return Se devuelve una vista denominada 'usuario.invoice.select'.
  */
     public function cartSelect(){
-        return view('user.invoice.select');
+        $cartItems = \Cart::getContent();
+        return view('user.invoice.select', compact('cartItems'));
     }
 
     public function confirmOrder(Request $request)
     {
-        
-
         $request->validate([
             'delivery_option' => 'required|string',
-            'delivery_time' => 'required_if:delivery_option,delivery|nullable|date_format:H:i',
             'pickup_date' => 'required_if:delivery_option,pickup|nullable|date_format:Y-m-d\TH:i',
         ]);
-    
+
         // Obtener los productos del carrito
         $cartItems = \Cart::getContent();
 
+        // Array para almacenar los IDs de los productos
+        $productIds = [];
         try {
             // Restar el stock de los productos
             foreach ($cartItems as $item) {
+
                 $product = Product::find($item->id);
                 if ($product) {
                     $product->stock -= $item->quantity;
@@ -305,19 +305,187 @@ class CartController extends Controller
                     }
                     $product->save();
                 }
-            }   
- 
-            // Redirigir a la página de confirmación
-            return redirect()->route('order.finalConfirm');
+                   // Guardar el ID del producto en el array
+                $productIds[] = $item->attributes->idProducto;
+            }
+
+            // Obtener los ítems del carrito
+            $cartItems = \Cart::getContent();
+        
+            // Verificar si el carrito está vacío
+            if ($cartItems->isEmpty()) {
+                return redirect()->back()->with('error', 'El carrito está vacío.');
+            }
+        
+            // Crear una nueva factura en la tabla 'invoices'
+            $invoice = new Invoice();
+            $invoice->total_invoice = 0; // Inicializar el total de la factura en 0
+            $invoice->user_id = Auth::id(); // Ajustar según sea necesario
+            $invoice->save();
+        
+            // Calcular el total de la factura y crear las líneas de factura
+            foreach ($cartItems as $item) {
+                // Obtener datos del producto del carrito
+                $productId = $item->attributes->idProducto;
+        
+                // Convertir tipoBandeja a float
+                $tipoBandeja = (float) $item->attributes->tipoBandeja;
+        
+                // Calcular el total de la línea de factura
+                $stockBuy = $item->quantity * $tipoBandeja;
+                $totalPriceProduct = $item->price * $stockBuy;
+        
+                // Crear una nueva línea de factura
+                $line = new Line();
+                $line->stock = $stockBuy;
+                $line->totalPriceProduct = $totalPriceProduct; // Precio total de la línea
+                $line->product_id = $productId; // ID del producto
+                $line->invoice_id = $invoice->id; // Asociar la línea con la factura creada
+                $line->save();
+        
+                // Actualizar el stock del producto
+                $productoEncontrado = Product::find($productId);
+                $productoEncontrado->stock = $productoEncontrado->stock - $stockBuy;
+                $productoEncontrado->save();
+            }
+        
+            // Asignar el total de la factura
+            $invoice->total_invoice = $request->final_total;
+            $invoice->save();
+        
+            // Cargar relaciones
+            $invoice->load('lines.product');
+        
+            // Vaciar el carrito
+            \Cart::clear();
+        
+            // Redirigir a la página de confirmación final con los datos necesarios para generar el PDF
+            return redirect()->route('order.finalConfirm', [
+                'invoice_id' => $invoice->id,
+                'delivery_option' => $request->delivery_option,
+                'pickup_date' => $request->pickup_date,
+                'address' => auth()->user()->address,
+                'product_ids' => $productIds // Pasar los IDs de los productos
+            ]);
+
         } catch (\Exception $e) {
 
             // Redirigir de nuevo con un mensaje de error
             return redirect()->back()->with('error', 'Ha ocurrido un error: ' . $e->getMessage());
         }
-    } 
+    }
 
+    /*
+    public function generateInvoices(Request $request) {
+        // Obtener los ítems del carrito
+        $cartItems = \Cart::getContent();
+    
+        // Verificar si el carrito está vacío
+        if ($cartItems->isEmpty()) {
+            return redirect()->back()->with('error', 'El carrito está vacío.');
+        }
+    
+        // Crear una nueva factura en la tabla 'invoices'
+        $invoice = new Invoice();
+        $invoice->total_invoice = 0; // Inicializar el total de la factura en 0
+        $invoice->user_id = Auth::id(); // Ajustar según sea necesario
+        $invoice->save();
+    
+        // Calcular el total de la factura y crear las líneas de factura
+        foreach ($cartItems as $item) {
+            // Obtener datos del producto del carrito
+            $productId = $item->attributes->idProducto;
+    
+            // Convertir tipoBandeja a float
+            $tipoBandeja = (float) $item->attributes->tipoBandeja;
+    
+            // Calcular el total de la línea de factura
+            $stockBuy = $item->quantity * $tipoBandeja;
+            $totalPriceProduct = $item->price * $stockBuy;
+    
+            // Crear una nueva línea de factura
+            $line = new Line();
+            $line->stock = $stockBuy;
+            $line->totalPriceProduct = $totalPriceProduct; // Precio total de la línea
+            $line->product_id = $productId; // ID del producto
+            $line->invoice_id = $invoice->id; // Asociar la línea con la factura creada
+            $line->save();
+    
+            // Actualizar el stock del producto
+            $productoEncontrado = Product::find($productId);
+            $productoEncontrado->stock = $productoEncontrado->stock - $stockBuy;
+            $productoEncontrado->save();
+        }
+    
+        // Asignar el total de la factura
+        $invoice->total_invoice = $request->final_total;
+        $invoice->save();
+    
+        // Cargar relaciones
+        $invoice->load('lines.product');
+    
+        // Vaciar el carrito
+        \Cart::clear();
+    
+        // Redirigir a la página de confirmación final con los datos necesarios para generar el PDF
+        return redirect()->route('order.finalConfirm', [
+            'invoice_id' => $invoice->id,
+            'delivery_option' => $request->delivery_option,
+            'pickup_date' => $request->pickup_date,
+            'address' => auth()->user()->address,
+        ]);
+    }*/
+           
+    
     public function finalConfirm(){ 
         $invoices = Invoice::all();
         return view('user.invoice.finalcart', compact('invoices'));
     }
+
+    public function downloadInvoice(Request $request) {
+        // Obtener los datos necesarios de la solicitud
+        $invoiceId = $request->query('invoice_id');
+        $deliveryOption = $request->query('delivery_option');
+        $pickupDate = $request->query('pickup_date');
+        $address = $request->query('address');
+        $finalTotal = $request->query('final_total'); // Agregado para incluir el total final
+        
+        // Preparar los datos de los productos
+        $invoice = Invoice::with('lines.product')->findOrFail($invoiceId);
+        $productsData = $invoice->lines->map(function($line) {
+            return [
+                'name' => $line->product->name,
+                'stock' => $line->stock,
+                'priceKG' => $line->product->priceKGFinal,
+                'totalPriceProduct' => $line->totalPriceProduct,
+                
+            ];
+        });
+
+
+        // Obtener la factura por ID
+        $invoice = Invoice::with('lines.product')->findOrFail($invoiceId);
+        
+        // Obtener los datos del usuario actual
+        $user = Auth::user();
+       
+        // Generar el PDF de la factura
+        $pdf = \PDF::loadView('user.invoice.pdf', [
+            'invoice' => $invoice, 
+            'deliveryOption' => $deliveryOption,
+            'pickupDate' => $pickupDate,
+            'address' => $address,
+            'finalTotal' => $finalTotal, // Pasando el total final al PDF
+            'user' => $user, // Pasando los datos del usuario
+            'productsData' => $productsData,
+        ]);
+
+        
+        // Descargar el PDF
+        return $pdf->download('factura.pdf');
+    }
+    
+    
+    
+    
 }

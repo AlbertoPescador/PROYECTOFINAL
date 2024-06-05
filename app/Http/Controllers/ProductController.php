@@ -116,7 +116,9 @@ class ProductController extends Controller
             } else {
                 $products->orderBy('id', 'asc');
             }
-    
+            
+            $products = $products->paginate(200); // Aplica paginación
+
             if ($request->ajax()) {
                 return response()->json([
                     'html' => view('user.product.category.busqueda', compact('products', 'category'))->render(),
@@ -165,7 +167,7 @@ class ProductController extends Controller
         }
     
         // Si no es una solicitud AJAX, cargar la vista completa con los resultados
-        return view('user.product.products', compact('products', 'busqueda'));
+        return view('user.product.products', compact('products', 'busqueda'));  
     }
 
     /**
@@ -414,7 +416,7 @@ class ProductController extends Controller
         // Manejo de la imagen (si se proporciona una nueva imagen)
         if ($request->hasFile('urlImagen')) {
             $imagen = $request->file('urlImagen');
-            $nombreProducto = $product->description; // Nombre del producto como nombre de archivo
+            $nombreProducto = $product->name; // Nombre del producto como nombre de archivo
             $extension = $imagen->getClientOriginalExtension(); // Extensión del archivo
 
             // Construir el nombre del archivo con el nombre del producto y su extensión

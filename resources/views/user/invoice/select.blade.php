@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Recogida</title>
+    <title>Confirmar Compra</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -51,7 +51,6 @@
 
         .modern-button {
             background-color: #007bff !important;
-            /* Azul primario */
             color: white !important;
             padding: 14px 20px !important;
             margin: 8px 0 !important;
@@ -62,15 +61,12 @@
             font-size: 16px !important;
             display: inline-block !important;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-            /* Sombra */
         }
 
         .modern-button:hover {
             background-color: #0056b3 !important;
-            /* Azul más oscuro */
             transform: scale(1.05) !important;
             box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15) !important;
-            /* Sombra más pronunciada */
         }
 
         label {
@@ -79,8 +75,7 @@
         }
 
         select,
-        input[type="datetime-local"],
-        input[type="time"] {
+        input[type="datetime-local"] {
             padding: 8px !important;
             border: 1px solid #ccc !important;
             border-radius: 4px !important;
@@ -110,44 +105,51 @@
                     <div class="flex flex-col w-full p-8 text-gray-800 bg-white shadow-lg md:w-4/5 lg:w-4/5">
                         <h3 class="text-3xl font-bold mb-4">Confirmar Compra</h3>
                         <form id="confirm-form" action="{{ route('order.confirm') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="delivery_option" id="hidden_delivery_option">
-                        <input type="hidden" name="delivery_time" id="hidden_delivery_time">
-                        <input type="hidden" name="pickup_date" id="hidden_pickup_date">
-                        <div class="form-group">
-                            <label for="delivery_option">Selecciona una opción:</label>
-                            <select id="delivery_option" name="delivery_option" required>
-                                <option value="" selected disabled>Selecciona una opción</option>
-                                <option value="delivery">Entrega</option>
-                                <option value="pickup">Recogida</option>
-                            </select>
-                        </div>
-                        <div class="form-group highlighted-field" id="delivery_message" style="display: none;">
-                            <!-- Información de entrega -->
+                            @csrf
+                            <input type="hidden" name="delivery_option" id="hidden_delivery_option">
+                            <input type="hidden" name="pickup_date" id="hidden_pickup_date">
+                            <input type="hidden" name="final_total" id="hidden_final_total">
+                            <div class="form-group">
+                                <label for="delivery_option">Selecciona una opción:</label>
+                                <select id="delivery_option" name="delivery_option" required>
+                                    <option value="" selected disabled>Selecciona una opción</option>
+                                    <option value="delivery">Entrega</option>
+                                    <option value="pickup">Recogida</option>
+                                </select>
+                            </div>
+                            <div class="form-group highlighted-field" id="delivery_message" style="display: none;">
                                 @php
-                                    $total = \Cart::getTotal();
+                                    $priceTotal = 0; // Inicializa el total en 0
+                                @endphp
+                                @foreach ($cartItems as $item)
+                                    @php
+                                        $priceBandeja = $item->price * $item->attributes['tipoBandeja'];
+                                        $priceTotal += $priceBandeja * $item->quantity; // Calcula el total sumando los precios de cada ítem en el carrito
+                                    @endphp
+                                @endforeach
+                                @php
+                                    $total = $priceTotal;
                                     $shippingCost = $total > 50 ? 0 : 7.5;
                                     $finalTotal = $total + $shippingCost;
                                     $deliveryTime = \Carbon\Carbon::now()->addDay(); // Un día después de la compra
                                 @endphp
-                            <p><strong>Información de Entrega:</strong></p>
-                            <p><strong>Dirección de entrega:</strong> <span>{{ auth()->user()->address }}</span></p>
-                            <p><strong>Precio final:</strong> <span>{{ number_format($total, 2) }}€</span></p>
-                            <p><strong>Precio más envío:</strong> <span>{{ number_format($finalTotal, 2) }}€</span></p>
-                            <p><strong>Fecha de envío:</strong> <span>{{ $deliveryTime->format('d-m-Y') }}</span></p>
-                            <p><strong>Cobro de envío:</strong> <span>{{ $shippingCost > 0 ? 'Sí' : 'No' }}</span></p>
-                            <label for="delivery_time">Selecciona la hora de recepción:</label>
-                            <input type="time" id="delivery_time" name="delivery_time">
-                            <span>Horario de entrega: 10:00 - 18:00</span>
-                        </div>
-                        <div class="form-group highlighted-field" id="pickup_message" style="display: none;">
-                            <label for="pickup_date">Selecciona la fecha y hora de recogida:</label>
-                            <input type="datetime-local" id="pickup_date" name="pickup_date">
-                        </div>
-                        <div class="form-group">
-                            <button type="submit" class="modern-button" id="confirm_button" disabled>Confirmar Compra</button>
-                        </div>
-                    </form>
+                                <p><strong>Información de Entrega:</strong></p>
+                                <p><strong>Dirección de entrega:</strong> <span>{{ auth()->user()->address }}</span></p>
+                                <p><strong>Precio final:</strong> <span>{{ number_format($total, 2) }}€</span></p>
+                                <p><strong>Precio más envío:</strong> <span>{{ number_format($finalTotal, 2) }}€</span></p>
+                                <p><strong>Fecha de envío:</strong> <span>{{ $deliveryTime->format('d-m-Y') }}</span></p>
+                                <p><strong>Cobro de envío:</strong> <span>{{ $shippingCost > 0 ? 'Sí' : 'No' }}</span></p>
+                                <p id="delivery_time_period"></p>
+                            </div>
+                            <div class="form-group highlighted-field" id="pickup_message" style="display: none;">
+                                <label for="pickup_date">Selecciona la fecha y hora de recogida:</label>
+                                <input type="datetime-local" id="pickup_date" name="pickup_date">
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="modern-button" id="confirm_button" disabled>Confirmar Compra</button>
+                            </div>
+                        </form>
+
                     </div>
                 </div>
             </div>
@@ -159,9 +161,17 @@
             const deliveryMessageDiv = document.getElementById('delivery_message');
             const pickupMessageDiv = document.getElementById('pickup_message');
             const pickupDateInput = document.getElementById('pickup_date');
-            const deliveryTimeInput = document.getElementById('delivery_time');
             const confirmButton = document.getElementById('confirm_button');
             const confirmForm = document.getElementById('confirm-form');
+            const deliveryTimePeriod = document.getElementById('delivery_time_period');
+            const hiddenDeliveryOption = document.getElementById('hidden_delivery_option');
+            const hiddenFinalTotal = document.getElementById('hidden_final_total');
+
+            const deliveryHours = {
+                weekdays: "10:00 - 20:00",
+                saturday: "08:00 - 18:00",
+                sunday: "09:00 - 14:30"
+            };
 
             const isValidPickupTime = (date) => {
                 const day = date.getDay();
@@ -172,32 +182,40 @@
                 } else if (day === 6) { // Sábado
                     return hour >= 8 && hour < 18;
                 } else if (day === 0) { // Domingo
-                    return hour >= 9 && hour < 15;
+                    return hour >= 9 && hour < 14.5;
                 }
                 return false;
             };
 
-            const isValidDeliveryTime = (time) => {
-                const [hour] = time.split(':').map(Number);
-                return hour >= 10 && hour < 18; // Horario de entrega de 10:00 a 18:00
+            const getDeliveryPeriod = (day) => {
+                if (day >= 1 && day <= 5) { // Lunes a Viernes
+                    return deliveryHours.weekdays;
+                } else if (day === 6) { // Sábado
+                    return deliveryHours.saturday;
+                } else if (day === 0) { // Domingo
+                    return deliveryHours.sunday;
+                }
+                return "";
             };
 
             const checkValidity = () => {
-                if (deliveryMethodSelect.value === 'delivery') {
-                    if (deliveryTimeInput.value && isValidDeliveryTime(deliveryTimeInput.value)) {
-                        confirmButton.disabled = false;
-                    } else {
-                        confirmButton.disabled = true;
-                    }
-                } else if (deliveryMethodSelect.value === 'pickup') {
+                if (deliveryMethodSelect.value === 'pickup') {
                     if (pickupDateInput.value && isValidPickupTime(new Date(pickupDateInput.value))) {
                         confirmButton.disabled = false;
                     } else {
                         confirmButton.disabled = true;
                     }
+                } else if (deliveryMethodSelect.value === 'delivery') {
+                    confirmButton.disabled = false;
                 } else {
                     confirmButton.disabled = true;
                 }
+            };
+
+            const updateDeliveryTimePeriod = () => {
+                const today = new Date();
+                const period = getDeliveryPeriod(today.getDay());
+                deliveryTimePeriod.textContent = `Periodo de entrega: ${period}`;
             };
 
             pickupDateInput.addEventListener('input', (event) => {
@@ -209,27 +227,23 @@
                 checkValidity();
             });
 
-            deliveryTimeInput.addEventListener('input', (event) => {
-                if (!isValidDeliveryTime(event.target.value)) {
-                    alert('Por favor selecciona un horario válido para la entrega.');
-                    event.target.value = '';
-                }
-                checkValidity();
-            });
-
             deliveryMethodSelect.addEventListener('change', function (event) {
                 const selectedOption = event.target.value;
                 if (selectedOption === 'delivery') {
                     deliveryMessageDiv.style.display = 'block';
                     pickupMessageDiv.style.display = 'none';
-                    pickupDateInput.removeAttribute('required');
-                    deliveryTimeInput.setAttribute('required', 'required');
+                    pickupDateInput.required = false;
+                    updateDeliveryTimePeriod();
+
+                    // Asignar el valor del total final al campo oculto
+                    hiddenFinalTotal.value = "{{ $finalTotal }}";
                 } else if (selectedOption === 'pickup') {
-                    pickupMessageDiv.style.display = 'block';
                     deliveryMessageDiv.style.display = 'none';
-                    setPickupDateTimeMin();
-                    deliveryTimeInput.removeAttribute('required');
-                    pickupDateInput.setAttribute('required', 'required');
+                    pickupMessageDiv.style.display = 'block';
+                    pickupDateInput.required = true;
+
+                    // Sin costo de envío para recogida, solo el total
+                    hiddenFinalTotal.value = "{{ $total }}";
                 } else {
                     deliveryMessageDiv.style.display = 'none';
                     pickupMessageDiv.style.display = 'none';
@@ -237,48 +251,19 @@
                 checkValidity();
             });
 
-            const setPickupDateTimeMin = () => {
-                const now = new Date();
-                const currentHour = now.getHours();
-                const currentDay = now.getDay();
-
-                if (currentDay >= 1 && currentDay <= 5) { // Lunes a Viernes
-                    if (currentHour >= 19) {
-                        now.setDate(now.getDate() + 1);
-                        now.setHours(10, 0, 0, 0);
-                    } else if (currentHour < 9) {
-                        now.setHours(10, 0, 0, 0);
-                    }
-                } else if (currentDay === 6) { // Sábado
-                    if (currentHour >= 17) {
-                        now.setDate(now.getDate() + 1);
-                        now.setHours(9, 0, 0, 0);
-                    } else if (currentHour < 8) {
-                        now.setHours(8, 0, 0, 0);
-                    }
-                } else if (currentDay === 0) { // Domingo
-                    if (currentHour >= 14) {
-                        now.setDate(now.getDate() + 1);
-                        now.setHours(10, 0, 0, 0);
-                    } else if (currentHour < 9) {
-                        now.setHours(9, 0, 0, 0);
-                    }
-                }
-
-                now.setMinutes(now.getMinutes() + 60); // Añadir 1 hora
-                pickupDateInput.min = now.toISOString().slice(0, 16);
-            };
-
-            confirmForm.addEventListener('submit', (event) => {
-                if (confirmButton.disabled) {
-                    event.preventDefault();
-                    alert('Por favor completa todos los campos requeridos con valores válidos.');
+            confirmForm.addEventListener('submit', function () {
+                if (deliveryMethodSelect.value === 'delivery') {
+                    hiddenDeliveryOption.value = 'delivery';
+                } else if (deliveryMethodSelect.value === 'pickup') {
+                    hiddenDeliveryOption.value = 'pickup';
+                    document.getElementById('hidden_pickup_date').value = pickupDateInput.value;
                 }
             });
 
-            checkValidity();
+            updateDeliveryTimePeriod(); // Initialize the delivery time period on page load
         });
-    </script>
+</script>
+
 </body>
 
 </html>

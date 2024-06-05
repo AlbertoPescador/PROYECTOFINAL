@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->date('date_created')->nullable(false);
             $table->float('total_invoice')->nullable(false);
             $table->unsignedBigInteger('user_id');  //  Creamos la clave foránea
             $table->timestamps();

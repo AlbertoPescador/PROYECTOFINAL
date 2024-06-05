@@ -3,32 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Mis pedidos</title>
+    <title>Mis Pedidos</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <body>
     <x-app-layout> 
         <div class="container mx-auto px-4">
-        <h2 class="text-2xl font-semibold my-8">Mis Pedidos</h2>
-            @if (count($invoices) >= 1)
-                @foreach ($invoices as $invoice)
-                            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-4">
-                                <div class="p-6 bg-white border-b border-gray-200">
-                                    <h3 class="text-lg font-semibold mb-4">Pedido #{{ $invoice->id }}</h3>
-                                    <p><strong>Fecha:</strong> {{ $invoice->date_created }}</p>
-                                    <p><strong>Total de la Factura:</strong> {{ $invoice->total_invoice }}€</p>
-                                    
-                                    <!-- Botón "Ver Detalles" -->
-                                    <a href="{{ route('invoices.show', $invoice->id) }}" class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Ver Detalles</a>
-                                    <!-- Enlace para descargar factura -->
-                                    <a href="{{ route('invoice.generateInvoices', $invoice->id) }}" class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Descargar Factura</a>
-                                </div>
-                            </div>
-                @endforeach
-            @else
-                <h1>El usuario no tiene ninguna factura almacenada</h1>
-            @endif
+            <h2 class="text-2xl font-semibold my-8">Mis Pedidos</h2>
+
+            <!-- Formulario de búsqueda por fecha -->
+            <form id="searchForm" class="mb-4">
+                <div class="form-group">
+                    <label for="start_date">Buscar por fecha:</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control">
+                </div>
+            </form>
+
+            <!-- Lista de facturas -->
+            <div id="invoicesList">
+                @include('user.invoice.busqueda', ['invoices' => $invoices])
+            </div>
         </div>
     </x-app-layout>
+
+    <script>
+        $(document).ready(function() {
+            // Función para realizar la búsqueda por fecha utilizando AJAX
+            function searchInvoices() {
+                var startDate = $('#start_date').val();
+
+                $.ajax({
+                    url: "{{ route('invoices.search') }}",
+                    type: 'GET',
+                    data: { start_date: startDate },
+                    success: function(response) {
+                        $('#invoicesList').html(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+
+            // Evento change del campo de fecha
+            $('#start_date').change(function() {
+                searchInvoices();
+            });
+
+            // Ejecutar la búsqueda al cargar la página (opcional)
+            searchInvoices();
+        });
+    </script>
 </body>
 </html>

@@ -9,36 +9,48 @@
 <body>
     <x-app-web-layout>
         <div class="container mx-auto px-4">
-            <h2 class="text-2xl font-semibold my-8">Facturas de {{ $user->name }} ({{ $user->email }})</h2>
-            @if (count($invoices) > 0)
-                @foreach ($invoices as $invoice)
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-4">
-                        <div class="p-6 bg-white border-b border-gray-200">
-                            <h3 class="text-lg font-semibold mb-4">Pedido #{{ $invoice->id }}</h3>
-                            <p><strong>Fecha:</strong> {{ $invoice->date_created }}</p>
-                            <p><strong>Total de la Factura:</strong> {{ $invoice->total_invoice }}€</p>
-                            <a href="{{ route('invoices.show', $invoice->id) }}" class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Ver Detalles</a>
-                            <a href="{{ route('invoice.generateInvoices', $invoice->id) }}" class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Descargar Factura</a>
-                            <form id="formDeleteInvoice{{ $invoice->id }}" action="{{ route('admin.invoices.destroy', $invoice->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" onclick="confirmarEliminacion('{{ $invoice->id }}')" class="mt-4 inline-block bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Eliminar Factura</button>
-                            </form>
-                        </div>
-                    </div>
-                @endforeach
-            @else
-                <h1>El usuario no tiene ninguna factura almacenada</h1>
-            @endif
+            <h2 class="text-2xl font-semibold my-8">Facturas del Usuario</h2>
+
+            <!-- Formulario de búsqueda por fecha -->
+            <form id="searchForm" class="mb-4">
+                <div class="form-group">
+                    <label for="start_date">Buscar por fecha:</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control">
+                </div>
+            </form>
+
+            <!-- Lista de facturas -->
+            <div id="invoicesList">
+                @include('admin.orders.busquedaorder', ['invoices' => $invoices, 'user' => $user])
+            </div>
         </div>
     </x-app-web-layout>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
-        function confirmarEliminacion(id) {
-            var mensaje = "¿Estás seguro de que quieres eliminar la factura con ID " + id + "?";
-            if (confirm(mensaje)) {
-                document.getElementById('formDeleteInvoice' + id).submit();
+        $(document).ready(function() {
+            // Función para realizar la búsqueda por fecha utilizando AJAX
+            function searchInvoices() {
+                var startDate = $('#start_date').val();
+
+                $.ajax({
+                    url: "{{ route('admin.invoices.search', ['id' => $user->id]) }}",
+                    type: 'GET',
+                    data: { start_date: startDate },
+                    success: function(response) {
+                        $('#invoicesList').html(response.html);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
             }
-        }
+
+            // Evento change del campo de fecha
+            $('#start_date').change(function() {
+                searchInvoices();
+            });
+        });
     </script>
 </body>
 </html>

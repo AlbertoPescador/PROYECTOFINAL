@@ -141,7 +141,13 @@
         .info-column h3 {
             font-size: 20px;
         }
-
+        
+        #video {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
     </style>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -183,13 +189,17 @@
                     <p>Bienvenidos a la carnicería "La Calidad". Ofrecemos los mejores cortes de carne con la frescura y calidad que nos caracteriza. Visítanos y disfruta de una experiencia única.</p>
                 </div>
             </div>
-            <br>
-            <hr>
-            <br>
-            <h1 class="title1">SOMOS ÚNICOS EN EL SECTOR ANDALUZ</h1>
-            <br>
-            <hr>
-            <br>
+            <div id="video">
+                <br>
+                <br>
+                <h1 class="title1">SOMOS ÚNICOS EN EL SECTOR ANDALUZ</h1>
+                <br>
+                <video width="560" height="315" controls>
+                    <source src="{{ asset('assets/videoprincipal.mp4') }}" type="video/mp4">
+                </video>
+                <br>
+                <br>
+            </div>
             <!-- Nuevo bloque cmsinfo_block -->
             <div id="cmsinfo_block">
                 <div class="info-column">

@@ -87,7 +87,7 @@ class ProductsSeeder extends Seeder
             'stock' => 20,
             'sale' => 0,
             'priceKG' => 14.99,
-            'urlImagen' => "assets/Estofado de Ternera con Verduras.png",
+            'urlImagen' => "assets/Estofado de Ternera.png",
             'priceKGFinal' => 14.99,
             'category_id' => 1
         ]);
@@ -167,7 +167,7 @@ class ProductsSeeder extends Seeder
             'stock' => 100,
             'sale' => 0,
             'priceKG' => 14.50,
-            'urlImagen' => "assets/Costillas Frescas.jpg",
+            'urlImagen' => "assets/Costillas Frescas.png",
             'priceKGFinal' => 14.50,
             'category_id' => 3
         ]);

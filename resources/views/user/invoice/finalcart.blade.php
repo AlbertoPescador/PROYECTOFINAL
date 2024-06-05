@@ -5,46 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Finalizar Compra</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .modern-button {
-            background-color: #007bff;
-            color: white;
-            padding: 14px 20px;
-            margin: 8px 0;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-            font-size: 16px;
-            display: inline-block;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .modern-button:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-        }
-    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <x-app-layout>
-        <div class="container">
-            <h1>Gracias por tu compra</h1>
-            <button class="modern-button" onclick="window.location.href='{{ route('invoice.myinvoices') }}'">Ver mis pedidos</button>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">Gracias por tu compra!</h1>
+                <p class="card-text">Tu pedido ha sido procesado con éxito.</p>
+
+                <!-- Botón de descarga de factura -->
+                <a href="{{ route('order.downloadInvoice', [
+                    'invoice_id' => request('invoice_id'),
+                    'delivery_option' => request('delivery_option'),
+                    'pickup_date' => request('pickup_date'),
+                    'address' => request('address'),
+                ]) }}" class="btn btn-primary mr-2">Descargar Factura</a>
+
+                <!-- Botón de Mis Pedidos -->
+                <a href="{{ route('invoice.myinvoices') }}" class="btn btn-primary">Mis Pedidos</a>
+            </div>
         </div>
-    </x-app-layout>
+    </div>
+
+    <!-- Scripts de Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

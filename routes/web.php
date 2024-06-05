@@ -49,7 +49,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     
     Route::get('admin/gestorder', [InvoiceController::class, 'gestOrders'])->name('admin.order.index');
     Route::get('admin/gestorders/search', [InvoiceController::class, 'searchUsers'])->name('admin.order.searchUsers');
-    Route::get('admin/gestorders/users/{id}/invoices', [InvoiceController::class, 'showUserInvoices'])->name('admin.order.userInvoices');    
+    Route::get('admin/gestorders/users/{id}/invoices', [InvoiceController::class, 'showUserInvoices'])->name('admin.order.userInvoices');
+    Route::delete('admin/gestorder/users/{id}/invoices/{invoice_id}', [InvoiceController::class, 'destroy'])->name('admin.order.destroy');
+    Route::get('/admin/gestorder/users/{id}/invoices', [InvoiceController::class, 'searchOrder'])->name('admin.invoices.search');
 
     Route::get('/admin/users', [ProfileController::class, 'viewRole'])->name('admin.user.view');
     Route::put('/admin/users/{id}', [ProfileController::class, 'updateRole'])->name('admin.user.update');
@@ -77,6 +79,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ofertas', [ProductController::class, 'sales'])->name('product.sales');
     Route::post('/generar-factura', [InvoiceController::class, 'generateInvoices'])->name('invoice.generateInvoices');
     Route::get('/mis-pedidos', [InvoiceController::class, 'myInvoices'])->name('invoice.myinvoices');
+    Route::get('/invoices/search', [InvoiceController::class, 'search'])->name('invoices.search');
+    Route::post('/invoices/search', [InvoiceController::class, 'search'])->name('invoices.search.submit');
     Route::get('/invoices/{id}', [InvoiceController::class, 'show'])->name('invoices.show');
 
     Route::get('/cart', [CartController::class, 'cartList'])->name('cart.list');
@@ -95,10 +99,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/confirm', [CartController::class, 'cartConfirm'])->name('cart.confirm');
     Route::get('/confirmcart', [CartController::class, 'confirmCart'])->name('cart.confirmcart');
     Route::get('/select', [CartController::class, 'cartSelect'])->name('cart.select');
+    Route::get('/invoice/finalcart', [CartController::class, 'finalConfirm'])->name('order.finalConfirm');
     Route::post('order/confirm', [CartController::class, 'confirmOrder'])->name('order.confirm');
+    Route::get('order/download-invoice', [CartController::class, 'downloadInvoice'])->name('order.downloadInvoice');
+    Route::get('/download-pdf/{invoice}', [InvoiceController::class, 'downloadPdf'])->name('download.pdf');
 
-    Route::get('order/success', [CartController::class, 'finalConfirm'])->name('order.finalConfirm');
-
+    
 
 });
 

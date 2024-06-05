@@ -17,7 +17,7 @@ class UsersSeeder extends Seeder
             'name' => 'admin',
             'email' => 'admin@gmail.com',
             'password' => 'admin',
-            'address' => '1234',
+            'address' => 'calle España 10',
             'role' => 'admin',
         ]);
     }
